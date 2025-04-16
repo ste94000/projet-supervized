@@ -5,6 +5,8 @@ from model import load_model, predict_engagement
 from recommender import get_recommendation
 from utils import get_engagement_level, plot_distributions, show_user_profile, cluster_summary
 from config import cluster_labels, level_labels
+import plotly.express as px
+import plotly.graph_objects as go
 
 st.set_page_config(page_title="Engagement Segmentation App", layout="wide")
 
@@ -20,9 +22,7 @@ model = load_model()
 df['cluster_label'] = df['cluster'].map({v: k for k, v in cluster_labels.items()})
 df['engagement_level'] = df['score_engagement_final'].apply(get_engagement_level)
 
-st.title("📊 Dashboard Engagement Utilisateurs")
-
-# Filtrage dynamique
+# Appliquer filtre cluster dès le départ
 filtered_df = df.copy()
 if cluster_filter != "Tous":
     filtered_df = filtered_df[filtered_df['cluster_label'] == cluster_filter]
@@ -31,38 +31,48 @@ if level_filter != "Tous":
 if user_id:
     filtered_df = filtered_df[filtered_df['id_visitor'].astype(str).str.contains(user_id)]
 
-# Résumé segment
-st.subheader("🔎 Résumé du segment")
-st.write(f"Nombre d'utilisateurs : {len(filtered_df)}")
-st.dataframe(cluster_summary(filtered_df))
+st.title("📊 Dashboard Engagement Utilisateurs")
 
-# Matrice
+# KPI globaux du segment
+st.subheader("📌 KPIs du segment sélectionné")
+col1, col2, col3 = st.columns(3)
+col1.metric("Utilisateurs", len(filtered_df))
+col2.metric("Score moyen", round(filtered_df['score_engagement_final'].mean(), 2))
+col3.metric("Pages vues moyennes", round(filtered_df['num_pageviews'].mean(), 2))
+
+# Matrice Engagement × Cluster
 st.subheader("🧭 Matrice Engagement × Cluster")
-matrix = pd.crosstab(df['cluster_label'], df['engagement_level'])
-st.dataframe(matrix)
+matrix = pd.crosstab(filtered_df['cluster_label'], filtered_df['engagement_level'])
+fig_matrix = px.imshow(matrix, text_auto=True, aspect="auto", title="Engagement × Cluster")
+st.plotly_chart(fig_matrix, use_container_width=True)
 
 # Recommandations stratégiques
 st.subheader("🧠 Recommandation contextuelle")
 col1, col2 = st.columns(2)
 with col1:
-    selected_cluster = st.selectbox("Cluster", list(cluster_labels.keys()))
+    selected_cluster = st.selectbox("Cluster", list(cluster_labels.keys()), index=0)
 with col2:
-    selected_level = st.selectbox("Niveau d'engagement", level_labels)
+    selected_level = st.selectbox("Niveau d'engagement", level_labels, index=0)
 rec = get_recommendation(selected_cluster, selected_level)
-st.write(f"🎯 **Recommandation :** {rec}")
+st.success(f"🎯 Recommandation : {rec}")
 
-# Liste des utilisateurs filtrés
-st.subheader("👥 Utilisateurs correspondants")
-st.dataframe(filtered_df[['id_visitor', 'cluster_label', 'engagement_level', 'score_engagement_final']])
+# Liste des utilisateurs (affichage résumés)
+st.subheader("👥 Profils d'utilisateurs")
+if not filtered_df.empty:
+    for idx, row in filtered_df.head(5).iterrows():
+        st.markdown(f"**ID :** {row['id_visitor']} | **Score :** {row['score_engagement_final']:.1f} | **Niveau :** {row['engagement_level']} | **Cluster :** {row['cluster_label']}")
+        st.progress(min(int(row['score_engagement_final']), 100))
+else:
+    st.info("Aucun utilisateur correspondant.")
 
-# Profil détaillé utilisateur
+# Profil utilisateur sélectionné
 if user_id and not filtered_df.empty:
-    st.subheader("📌 Profil utilisateur")
+    st.subheader("🔍 Profil détaillé utilisateur")
     show_user_profile(filtered_df.iloc[0])
 
 # Vue analytique
-st.subheader("📈 Vue analytique")
-plot_distributions(df)
+st.subheader("📈 Vue analytique du segment")
+plot_distributions(filtered_df)
 
 # Prédiction (exemple d'utilisation du modèle)
 st.subheader("🔮 Prédire le score pour un nouvel utilisateur")
