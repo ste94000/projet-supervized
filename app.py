@@ -69,7 +69,7 @@ st.success(f"🎯 Recommandation : {rec}")
 st.subheader("👥 Profils d'utilisateurs")
 if not filtered_df.empty:
     for idx, row in filtered_df.head(5).iterrows():
-        st.markdown(f"**ID :** {row['id_visitor']} | **Score :** {row['score_engagement_final']:.1f} | **Niveau :** {row['engagement_level']} | **Cluster :** {row['cluster_label']}")
+        st.markdown(f"**ID :** {row['id_visitor']} | **Score d'engagement:** {row['score_engagement_final']:.1f} | **Niveau :** {row['engagement_level']} | **Cluster :** {row['cluster_label']}")
         st.progress(min(int(row['score_engagement_final']), 100))
 else:
     st.info("Aucun utilisateur correspondant.")
