@@ -35,10 +35,19 @@ st.title("📊 Dashboard Engagement Utilisateurs")
 
 # KPI globaux du segment
 st.subheader("📌 KPIs du segment sélectionné")
-col1, col2, col3 = st.columns(3)
-col1.metric("Utilisateurs", len(filtered_df))
-col2.metric("Score moyen", round(filtered_df['score_engagement_final'].mean(), 2))
-col3.metric("Pages vues moyennes", round(filtered_df['num_pageviews'].mean(), 2))
+kpi1, kpi2, kpi3 = st.columns(3)
+kpi1.metric("Utilisateurs", len(filtered_df))
+kpi2.metric("Score moyen", round(filtered_df['score_engagement_final'].mean(), 2))
+kpi3.metric("Pages vues moyennes", round(filtered_df['num_pageviews'].mean(), 2))
+
+kpi4, kpi5, kpi6 = st.columns(3)
+kpi4.metric("Sessions moyennes", round(filtered_df['num_prior_sessions'].mean(), 2))
+kpi5.metric("Commentaires moyens", round(filtered_df['num_comments'].mean(), 2))
+kpi6.metric("Taux de rebond moyen", f"{round(filtered_df['is_bounce'].mean() * 100, 2)}%")
+
+kpi7, kpi8 = st.columns(2)
+kpi7.metric("Ancienneté moyenne (jours depuis 1ère session)", round(filtered_df['days_since_first_session'].mean(), 2))
+kpi8.metric("Délai moyen depuis dernière session", round(filtered_df['days_since_prior_session'].mean(), 2))
 
 # Matrice Engagement × Cluster
 st.subheader("🧭 Matrice Engagement × Cluster")
