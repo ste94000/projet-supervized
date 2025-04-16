@@ -1,6 +1,6 @@
 import joblib
 
-MODEL_PATH = "assets/engagement_model.joblib"
+MODEL_PATH = "engagement_model.joblib"
 
 def load_model():
     return joblib.load(MODEL_PATH)
