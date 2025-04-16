@@ -37,7 +37,7 @@ st.title("📊 Dashboard Engagement Utilisateurs")
 st.subheader("📌 KPIs du segment sélectionné")
 kpi1, kpi2, kpi3 = st.columns(3)
 kpi1.metric("Utilisateurs", len(filtered_df))
-kpi2.metric("Score moyen", round(filtered_df['score_engagement_final'].mean(), 2))
+kpi2.metric("Score d'engagement moyen", round(filtered_df['score_engagement_final'].mean(), 2))
 kpi3.metric("Pages vues moyennes", round(filtered_df['num_pageviews'].mean(), 2))
 
 kpi4, kpi5, kpi6 = st.columns(3)
