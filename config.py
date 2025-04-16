@@ -1,17 +1,16 @@
 cluster_labels = {
-    "Super Utilisateur": 1,
-    "Visiteur Régulier": 8,
-    "Décrocheur Curieux": 7,
-    "Nouveau ou Unique": 3,
-    "Explorateur Léger": 11,
-    "Fidèle Modéré": 6,
-    "Actif Silencieux": 10,
-    "Fantôme Passif": 9,
-    "Rebond Unique": 2,
-    "Fidèle Silencieux": 5,
-    "Éclaireur": 4,
-    "Visiteur Express": 0
+    "Visiteur Léger": 0,
+    "Ultra Power User": 1,
+    "Inactif Curieux": 2,
+    "Découverte Unique": 3,
+    "Explorateur Occasionnel": 4,
+    "Régulier Stable": 5,
+    "Ancien Perdu": 6,
+    "Explorateur Actif": 7,
+    "Nouveau Curieux": 8,
+    "Endormi Récent": 9,
+    "Silencieux Régulier": 10,
+    "Curieux Récent": 11
 }
-
 
 level_labels = ["Faible", "Moyen", "Fort", "Très fort"]
