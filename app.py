@@ -67,7 +67,7 @@ rec = get_recommendation(selected_cluster, selected_level)
 st.success(f"🎯 Recommandation : {rec}")
 
 # Importance des variables (Random Forest)
-st.subheader("📌 Top 5 variables influençant le score d'engagement")
+st.subheader("📌 Top 5 variables influençant le désengagement")
 
 if hasattr(model, "feature_importances_"):
     importances = model.feature_importances_
