@@ -91,7 +91,8 @@ fig = go.Figure(data=[go.Pie(
     labels=importance_df["Variable"],
     values=importance_df["Importance"],
     hole=0.4,
-    textinfo='label+percent'
+    textinfo='label+percent',
+    textposition='outside'
 )])
 
 st.plotly_chart(fig, use_container_width=True)
