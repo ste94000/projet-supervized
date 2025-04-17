@@ -77,7 +77,7 @@ weights = {
     'no_username': 0.15,
     'is_bounce': -0.10,  # impact négatif
     'mean_time_sinse_priorsession': -0.05,
-    'mean_days_since_first_session': 0.05
+    'days_since_first_session < 3': 0.05
 }
 
 # On prend les valeurs absolues pour représenter l'importance (peu importe le signe)
