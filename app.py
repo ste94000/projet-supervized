@@ -71,7 +71,7 @@ st.subheader("📌 Top 5 variables influençant le désengagement")
 
 if hasattr(model, "feature_importances_"):
     importances = model.feature_importances_
-    features = df.drop(columns=['score_engagement_final', 'score_engagement_intra_cluster', 'cluster', 'cluster_label', 'engagement_level', 'Unnamed: 0.1','Unnamed: 0', 'id_visitor']).columns
+    features = df.drop(columns=['score_engagement_final', 'score_engagement_intra_cluster', 'cluster', 'cluster_label', 'engagement_level', 'id_visitor']).columns
     importance_df = pd.DataFrame({
         "Variable": features,
         "Importance": importances
