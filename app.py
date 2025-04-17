@@ -68,25 +68,27 @@ st.success(f"🎯 Recommandation : {rec}")
 
 # Importance des variables (Random Forest)
 st.subheader("📌 Top variables influençant le désengagement")
-
-weights = {
+weights_engagement = {
     'num_pageviews': 0.25,
     'num_comments': 0.20,
     'num_prior_sessions': 0.15,
     'is_repeat_visitor': 0.05,
     'has_username': 0.15,
-    'is_bounce': -0.10,  # impact négatif
+    'is_bounce': -0.10,
     'time_sinse_priorsession': -0.05,
     'days_since_first_session': 0.05
 }
 
-# On prend les valeurs absolues pour représenter l'importance (peu importe le signe)
+# Inverser les poids pour représenter l'effet sur le DÉSengagement
+weights_disengagement = {k: -v for k, v in weights_engagement.items()}
+
+# Construire le DataFrame en prenant la valeur absolue pour l’importance
 importance_df = pd.DataFrame({
-    "Variable": list(weights.keys()),
-    "Importance": [abs(v) for v in weights.values()]
+    "Variable": list(weights_disengagement.keys()),
+    "Importance": [abs(v) for v in weights_disengagement.values()]
 }).sort_values(by="Importance", ascending=False)
 
-# Créer un faux camembert
+# Graphique camembert avec texte à l'extérieur
 fig = go.Figure(data=[go.Pie(
     labels=importance_df["Variable"],
     values=importance_df["Importance"],
