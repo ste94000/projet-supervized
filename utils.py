@@ -23,17 +23,6 @@ import plotly.graph_objects as go
 
 
 def plot_distributions(df):
-    # Histogramme du score d'engagement
-    fig1 = px.histogram(
-        df,
-        x="score_engagement_final",
-        nbins=30,
-        title="Distribution des scores d'engagement",
-        color_discrete_sequence=["#636EFA"]
-    )
-    fig1.update_layout(xaxis_title="Score", yaxis_title="Nombre d'utilisateurs")
-    st.plotly_chart(fig1, use_container_width=True)
-
     # Répartition par cluster
     cluster_order = df['cluster_label'].value_counts().index.tolist()
     df["cluster_label"] = pd.Categorical(df["cluster_label"], categories=cluster_order, ordered=True)
@@ -45,6 +34,17 @@ def plot_distributions(df):
     )
     fig2.update_layout(xaxis_title="Cluster", yaxis_title="Nombre d'utilisateurs")
     st.plotly_chart(fig2, use_container_width=True)
+
+    # Histogramme du score d'engagement
+    fig1 = px.histogram(
+        df,
+        x="score_engagement_final",
+        nbins=30,
+        title="Distribution des scores d'engagement",
+        color_discrete_sequence=["#636EFA"]
+    )
+    fig1.update_layout(xaxis_title="Score", yaxis_title="Nombre d'utilisateurs")
+    st.plotly_chart(fig1, use_container_width=True)
 
 def show_user_profile(user):
     st.subheader("📌 Détails utilisateur")
