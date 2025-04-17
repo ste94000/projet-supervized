@@ -100,7 +100,7 @@ st.plotly_chart(fig, use_container_width=True)
 st.subheader("🔮 Prédiction de désengagement")
 
 with st.form("prediction_form"):
-    st.markdown("**Saisir les caractéristiques de l'utilisateur :**")
+    st.markdown("**Saisir les caractéristiques principales de l'utilisateur :**")
 
     num_pageviews = st.slider("Nombre de pages vues", 0, 100, 5)
     num_comments = st.slider("Nombre de commentaires", 0, 20, 0)
@@ -108,13 +108,14 @@ with st.form("prediction_form"):
     is_repeat_visitor = st.slider("Visiteur récurrent ?", 0.0, 1.0, 0.5)
     has_username = st.selectbox("A un nom d'utilisateur ?", [0, 1])
     is_bounce = st.slider("Quel est son taux de rebond moyen ?", 0.0, 1.0, 0.5)
-    time_sinse_priorsession = st.slider("Temps depuis la session précédente (jours)", 0, 60, 5)
-    days_since_first_session = st.slider("Jours depuis la première session", 0, 365, 10)
+    time_sinse_priorsession = st.slider("Temps depuis la session précédente (secondes)", 0, 300000)
+    days_since_first_session = st.slider("Jours depuis la première session", 0, 1000, 10)
 
     submitted = st.form_submit_button("Prédire le désengagement")
 
     if submitted:
-        input_data = pd.DataFrame([{
+        # Variables que l'utilisateur a remplies
+        user_inputs = {
             'num_pageviews': num_pageviews,
             'num_comments': num_comments,
             'num_prior_sessions': num_prior_sessions,
@@ -123,15 +124,37 @@ with st.form("prediction_form"):
             'is_bounce': is_bounce,
             'days_since_prior_session': time_sinse_priorsession,
             'days_since_first_session': days_since_first_session
-        }])
+        }
 
-        # Prédiction
+        # Créer un dictionnaire complet avec toutes les variables nécessaires au modèle
+        model_features = df.drop(columns=[
+            'score_engagement_final',
+            'score_engagement_intra_cluster',
+            'cluster_label',
+            'engagement_level',
+            'id_visitor'
+        ]).columns
+
+        complete_input = {}
+        for col in model_features:
+            if col in user_inputs:
+                complete_input[col] = user_inputs[col]
+            else:
+                # Remplir avec la moyenne du dataset
+                complete_input[col] = df[col].mean()
+
+        # Construire le DataFrame d'entrée
+        input_data = pd.DataFrame([complete_input])
+
+        # Faire la prédiction
         prediction = predict_engagement(model, input_data)
 
-        if hasattr(prediction, "values"):  # S'il s'agit d'une série/array
+        if hasattr(prediction, "values"):
             prediction = prediction[0]
 
-        if prediction <= 25:  # seuil de désengagement
+        st.info(f"🔢 Score d'engagement prédit : **{round(prediction, 2)}**")
+
+        if prediction <= 25:
             st.error("⚠️ L'utilisateur est à risque de désengagement.")
         else:
             st.success("✅ L'utilisateur semble engagé.")
