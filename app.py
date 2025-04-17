@@ -155,7 +155,7 @@ with st.form("prediction_form"):
 
         if is_repeat_visitor > 0.8 or num_pageviews > 10 or num_comments > 6 or is_bounce < 0.1:
             st.success("✅ L'utilisateur semble engagé.")
-        if prediction == 0:
+        elif prediction == 0:
             st.error("⚠️ L'utilisateur est à risque de désengagement.")
         else:
             st.success("✅ L'utilisateur semble engagé.")
