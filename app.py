@@ -107,7 +107,7 @@ with st.form("prediction_form"):
     num_prior_sessions = st.slider("Nombre de sessions précédentes", 0, 50, 2)
     is_repeat_visitor = st.selectbox("Visiteur récurrent ?", [0, 1])
     has_username = st.selectbox("A un nom d'utilisateur ?", [0, 1])
-    is_bounce = st.selectbox("A fait un rebond ?", [0, 1])
+    is_bounce = st.slider("Quel est son rebond moyen sur toutes ses sessions ?", [0, 1])
     time_sinse_priorsession = st.slider("Temps depuis la session précédente (jours)", 0, 60, 5)
     days_since_first_session = st.slider("Jours depuis la première session", 0, 365, 10)
 
