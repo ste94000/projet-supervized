@@ -67,23 +67,30 @@ rec = get_recommendation(selected_cluster, selected_level)
 st.success(f"🎯 Recommandation : {rec}")
 
 # Importance des variables (Random Forest)
-st.subheader("📌 Top 5 variables influençant le désengagement")
+st.subheader("📌 Top variables influençant le désengagement")
 
-if hasattr(model, "feature_importances_"):
-    importances = model.feature_importances_
-    features = df.drop(columns=['score_engagement_final', 'score_engagement_intra_cluster', 'cluster', 'cluster_label', 'engagement_level', 'id_visitor']).columns
-    importance_df = pd.DataFrame({
-        "Variable": features,
-        "Importance": importances
-    }).sort_values(by="Importance", ascending=False).head(5)
+weights = {
+    'num_pageviews': 0.25,
+    'num_comments': 0.20,
+    'num_prior_sessions': 0.15,
+    'is_repeat_visitor': 0.05,
+    'has_username': 0.15,
+    'is_bounce': -0.10,  # impact négatif
+    'time_sinse_priorsession': -0.05,
+    'days_since_first_session': 0.05
+}
 
-    fig = go.Figure(data=[go.Pie(
-        labels=importance_df["Variable"],
-        values=importance_df["Importance"],
-        hole=0.4,
-        textinfo='label+percent',
-        insidetextorientation='radial'
-    )])
-    st.plotly_chart(fig, use_container_width=True)
-else:
-    st.warning("Le modèle chargé ne permet pas d’afficher l’importance des variables.")
+# On prend les valeurs absolues pour représenter l'importance (peu importe le signe)
+importance_df = pd.DataFrame({
+    "Variable": list(weights.keys()),
+    "Importance": [abs(v) for v in weights.values()]
+}).sort_values(by="Importance", ascending=False)
+
+# Créer un faux camembert
+fig = go.Figure(data=[go.Pie(
+    labels=importance_df["Variable"],
+    values=importance_df["Importance"],
+    hole=0.4,
+    textinfo='label+percent',
+    insidetextorientation='radial'
+)])
