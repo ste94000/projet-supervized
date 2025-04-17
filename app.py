@@ -67,17 +67,24 @@ rec = get_recommendation(selected_cluster, selected_level)
 st.success(f"🎯 Recommandation : {rec}")
 
 # Importance des variables (Random Forest)
-st.subheader("📌 Importance des variables dans le modèle d'engagement")
+st.subheader("📌 Top 5 variables influençant le score d'engagement")
 
 if hasattr(model, "feature_importances_"):
     importances = model.feature_importances_
     features = df.drop(columns=['score_engagement_final', 'score_engagement_intra_cluster', 'cluster', 'cluster_label', 'engagement_level']).columns
     importance_df = pd.DataFrame({
-        "Feature": features,
+        "Variable": features,
         "Importance": importances
-    }).sort_values(by="Importance", ascending=False).head(20)
+    }).sort_values(by="Importance", ascending=False).head(5)
 
-    fig = px.bar(importance_df, x="Importance", y="Feature", orientation="h", title="Top 20 Variables les Plus Importantes")
+    fig = go.Figure(data=[go.Pie(
+        labels=importance_df["Variable"],
+        values=importance_df["Importance"],
+        hole=0.4,
+        textinfo='label+percent',
+        insidetextorientation='radial'
+    )])
+    fig.update_layout(title="Distribution des 5 variables les plus importantes", showlegend=True)
     st.plotly_chart(fig, use_container_width=True)
 else:
     st.warning("Le modèle chargé ne permet pas d’afficher l’importance des variables.")
