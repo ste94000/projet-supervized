@@ -132,7 +132,8 @@ with st.form("prediction_form"):
             'score_engagement_intra_cluster',
             'cluster_label',
             'engagement_level',
-            'id_visitor'
+            'id_visitor',
+            "Unnamed: 0.2"
         ]).columns
 
         complete_input = {}
