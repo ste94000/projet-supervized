@@ -1,17 +1,16 @@
 cluster_labels = {
-    "Visiteur Léger": 0,                # Faible sessions/pages, faible rebond, actif modéré
-    "Super Utilisateur": 1,             # 34k sessions, très ancien, 1335 pages – extrême engagement
-    "Explorateur Minimaliste": 2,       # Très faible sessions, récent, peu de pages, score moyen
-    "Découverte Instantanée": 3,        # Très peu de sessions, très récent, quasi rebond immédiat
-    "Explorateur Actif": 4,             # Sessions 3.8, score 42, bonne base d’engagement
-    "Curieux Fidèle": 5,                # Présence stable, faible rebond, score moyen
-    "Anonyme Répété": 6,                # Ancienneté modérée, sessions hautes, peu de signaux
-    "Décrocheur Précipité": 7,          # Moyenne sessions, ancienneté, score moyen – chute d'engagement ?
-    "Nouveau Prometteur": 8,            # Très peu de sessions mais score élevé
-    "Endormi Historique": 9,            # Ancien, peu actif actuellement
-    "Silencieux Stable": 10,            # Sessions correctes mais peu de feedbacks
-    "Récemment Attiré": 11              # Ancienneté faible, sessions et score corrects
+    "Navigateur Occasionnel": 0,             # Sessions faibles, rebond élevé, France, Windows
+    "Utilisateur Historique Extrême": 1,     # 34k sessions, très ancien, activité exceptionnelle
+    "Premier Contact Minimaliste": 2,        # Sessions < 0.5, presque aucune interaction
+    "Visiteur Unique Rapide": 3,             # Visites ultra-courtes et récentes
+    "Explorateur Régulier": 4,               # Sessions normales, navigation modérée
+    "Mobinaute Côte d’Ivoire": 5,            # Peu de commentaires, OS mobile, contexte local
+    "Explorateur Marocain": 6,               # Sessions modérées, Maroc, usage répétitif
+    "Volatile US Desktop": 7,                # Sessions irrégulières, OS desktop, USA
+    "Curieux Mobile Afrique": 8,             # Côte d'Ivoire, faible ancienneté, usage mobile
+    "Endormi Ancien Suisse": 9,              # Très ancien, rebondé, peu actif récemment
+    "Linuxien Régulier Belgique": 10,        # OS Linux, Belgique, usage modéré/stable
+    "Androidien Tunisien Récurrent": 11      # Android, Tunisie, sessions correctes
 }
-
 
 level_labels = ["Faible", "Moyen", "Fort", "Très fort"]

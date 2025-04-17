@@ -19,7 +19,8 @@ df = load_data()
 model = load_model()
 
 # Ajouter colonnes labellisées
-df['cluster_label'] = df['cluster'].map({v: k for k, v in cluster_labels.items()})
+cluster_labels_map = {v: k for k, v in cluster_labels.items()}
+df['cluster_label'] = df['cluster'].map(cluster_labels_map)
 df['engagement_level'] = df['score_engagement_final'].apply(get_engagement_level)
 
 # Appliquer filtre cluster dès le départ
@@ -45,9 +46,18 @@ kpi4.metric("Sessions moyennes", round(filtered_df['num_prior_sessions'].mean(),
 kpi5.metric("Commentaires moyens", round(filtered_df['num_comments'].mean(), 2))
 kpi6.metric("Taux de rebond moyen", f"{round(filtered_df['is_bounce'].mean() * 100, 2)}%")
 
-kpi7, kpi8 = st.columns(2)
+kpi7, kpi8, kpi9 = st.columns(3)
 kpi7.metric("Ancienneté moyenne (jours depuis 1ère session)", round(filtered_df['days_since_first_session'].mean(), 2))
 kpi8.metric("Délai moyen depuis dernière session", round(filtered_df['days_since_prior_session'].mean(), 2))
+kpi9.metric("Nombre moyen de pays (1-hot)", round(filtered_df[[col for col in df.columns if col.startswith('country_')]].sum(axis=1).mean(), 2))
+
+# OS dominant
+os_cols = [col for col in df.columns if col.startswith("os_")]
+os_dominant = filtered_df[os_cols].mean().idxmax().replace("os_", "")
+country_cols = [col for col in df.columns if col.startswith("country_")]
+country_dominant = filtered_df[country_cols].mean().idxmax().replace("country_", "")
+
+st.info(f"🖥️ OS dominant : {os_dominant} | 🌍 Pays dominant : {country_dominant}")
 
 # Matrice Engagement × Cluster
 st.subheader("🧭 Matrice Engagement × Cluster")
