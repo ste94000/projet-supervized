@@ -8,7 +8,7 @@ from config import cluster_labels, level_labels
 import plotly.express as px
 import plotly.graph_objects as go
 
-st.set_page_config(page_title="Engagement Segmentation App", layout="wide")
+st.set_page_config(page_title="Moteur de recommandation engagement utilisateur", layout="wide")
 
 st.sidebar.title("🔎 Filtres")
 cluster_filter = st.sidebar.selectbox("Choisir un cluster", ["Tous"] + list(cluster_labels.keys()))
@@ -32,7 +32,7 @@ if level_filter != "Tous":
 st.title("📊 Dashboard Engagement Utilisateurs")
 
 # KPI globaux du segment
-st.subheader("📌 KPIs du segment sélectionné")
+st.subheader("📌 KPIs")
 kpi1, kpi2, kpi3, kpi4 = st.columns(4)
 kpi1.metric("Utilisateurs", len(filtered_df))
 kpi2.metric("Score d'engagement moyen", round(filtered_df['score_engagement_final'].mean(), 2))
@@ -53,11 +53,11 @@ country_dominant = filtered_df[country_cols].mean().idxmax().replace("country_",
 st.info(f"🖥️ OS dominant : {os_dominant} | 🌍 Pays dominant : {country_dominant}")
 
 # Vue analytique
-st.subheader("📈 Vue analytique du segment")
+st.subheader("📈 Vue analytique")
 plot_distributions(filtered_df)
 
 # Recommandations stratégiques
-st.subheader("🧠 Recommandation contextuelle")
+st.subheader("🧠 Recommandations")
 col1, col2 = st.columns(2)
 with col1:
     selected_cluster = st.selectbox("Cluster", list(cluster_labels.keys()), index=0)
