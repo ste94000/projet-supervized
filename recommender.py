@@ -1,8 +1,8 @@
 reco_rules_intra = {
-    ("Ancien Endormi à Fort Rebond", "Faible"): "Réduire le taux de rebond avec un accueil repensé et contextualisé",
-    ("Ancien Endormi à Fort Rebond", "Moyen"): "Relancer l'intérêt avec des contenus mis à jour ou personnalisés",
-    ("Ancien Endormi à Fort Rebond", "Fort"): "Réactiver l’intérêt via une campagne de relance ou nouveautés mises en avant",
-    ("Ancien Endormi à Fort Rebond", "Très fort"): "Proposer une réintégration exclusive avec contenus ou fonctions VIP",
+    ("Endormi à Fort Rebond", "Faible"): "Réduire le taux de rebond avec un accueil repensé et contextualisé",
+    ("Endormi à Fort Rebond", "Moyen"): "Relancer l'intérêt avec des contenus mis à jour ou personnalisés",
+    ("Endormi à Fort Rebond", "Fort"): "Réactiver l’intérêt via une campagne de relance ou nouveautés mises en avant",
+    ("Endormi à Fort Rebond", "Très fort"): "Proposer une réintégration exclusive avec contenus ou fonctions VIP",
 
     ("Androidien Récurrent et Actif", "Faible"): "Faciliter la première accroche avec des contenus populaires Android",
     ("Androidien Récurrent et Actif", "Moyen"): "Personnaliser l'accueil en fonction de l'historique mobile",

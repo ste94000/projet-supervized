@@ -56,6 +56,10 @@ country_dominant = filtered_df[country_cols].mean().idxmax().replace("country_",
 
 st.info(f"🖥️ OS dominant : {os_dominant} | 🌍 Pays dominant : {country_dominant}")
 
+# Vue analytique
+st.subheader("📈 Vue analytique du segment")
+plot_distributions(filtered_df)
+
 # Matrice Engagement × Cluster
 st.subheader("🧭 Matrice Engagement × Cluster")
 matrix = pd.crosstab(filtered_df['cluster_label'], filtered_df['engagement_level'])
@@ -86,9 +90,6 @@ if user_id and not filtered_df.empty:
     st.subheader("🔍 Profil détaillé utilisateur")
     show_user_profile(filtered_df.iloc[0])
 
-# Vue analytique
-st.subheader("📈 Vue analytique du segment")
-plot_distributions(filtered_df)
 
 # Prédiction (exemple d'utilisation du modèle)
 st.subheader("🔮 Prédire le score pour un nouvel utilisateur")
