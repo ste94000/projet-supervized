@@ -94,3 +94,5 @@ fig = go.Figure(data=[go.Pie(
     textinfo='label+percent',
     insidetextorientation='radial'
 )])
+
+st.plotly_chart(fig, use_container_width=True)
