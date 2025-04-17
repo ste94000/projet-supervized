@@ -54,7 +54,7 @@ country_dominant = filtered_df[country_cols].mean().idxmax().replace("country_",
 st.info(f"🖥️ OS dominant : {os_dominant} | 🌍 Pays dominant : {country_dominant}")
 
 # Visualisation des distributions
-st.subheader("📈 Analyse des segment")
+st.subheader("📈 Analyse comportementale du segment")
 plot_distributions(filtered_df)
 
 # Importance des variables
@@ -71,6 +71,7 @@ if hasattr(model, "feature_importances_"):
         hole=0.4,
         textinfo='label+percent'
     )])
+    fig.update_layout(title="Variables principales du Random Forest")
     st.plotly_chart(fig, use_container_width=True)
 else:
     st.warning("Modèle incompatible pour afficher l'importance des variables.")
