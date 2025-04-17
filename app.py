@@ -36,20 +36,17 @@ st.title("📊 Dashboard Engagement Utilisateurs")
 
 # KPI globaux du segment
 st.subheader("📌 KPIs du segment sélectionné")
-kpi1, kpi2, kpi3 = st.columns(3)
+kpi1, kpi2, kpi3, kpi4 = st.columns(4)
 kpi1.metric("Utilisateurs", len(filtered_df))
 kpi2.metric("Score d'engagement moyen", round(filtered_df['score_engagement_final'].mean(), 2))
 kpi3.metric("Pages vues moyennes", round(filtered_df['num_pageviews'].mean(), 2))
-
-kpi4, kpi5, kpi6 = st.columns(3)
 kpi4.metric("Sessions moyennes", round(filtered_df['num_prior_sessions'].mean(), 2))
-kpi5.metric("Commentaires moyens", round(filtered_df['num_comments'].mean(), 2))
-kpi6.metric("Taux de rebond moyen", f"{round(filtered_df['is_bounce'].mean() * 100, 2)}%")
 
-kpi7, kpi8, kpi9 = st.columns(3)
-kpi7.metric("Ancienneté moyenne (jours depuis 1ère session)", round(filtered_df['days_since_first_session'].mean(), 2))
-kpi8.metric("Délai moyen depuis dernière session", round(filtered_df['days_since_prior_session'].mean(), 2))
-kpi9.metric("Nombre moyen de pays (1-hot)", round(filtered_df[[col for col in df.columns if col.startswith('country_')]].sum(axis=1).mean(), 2))
+
+kpi5, kpi6, kpi7 = st.columns(3)
+kpi5.metric("Taux de rebond moyen", f"{round(filtered_df['is_bounce'].mean() * 100, 2)}%")
+kpi6.metric("Ancienneté moyenne (jours depuis 1ère session)", round(filtered_df['days_since_first_session'].mean(), 2))
+kpi7.metric("Délai moyen depuis dernière session (jours)", round(filtered_df['days_since_prior_session'].mean(), 2))
 
 # OS dominant
 os_cols = [col for col in df.columns if col.startswith("os_")]
