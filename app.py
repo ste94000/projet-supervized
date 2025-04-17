@@ -96,3 +96,42 @@ fig = go.Figure(data=[go.Pie(
 )])
 
 st.plotly_chart(fig, use_container_width=True)
+
+st.subheader("🔮 Prédiction de désengagement")
+
+with st.form("prediction_form"):
+    st.markdown("**Saisir les caractéristiques de l'utilisateur :**")
+
+    num_pageviews = st.slider("Nombre de pages vues", 0, 100, 5)
+    num_comments = st.slider("Nombre de commentaires", 0, 20, 0)
+    num_prior_sessions = st.slider("Nombre de sessions précédentes", 0, 50, 2)
+    is_repeat_visitor = st.selectbox("Visiteur récurrent ?", [0, 1])
+    has_username = st.selectbox("A un nom d'utilisateur ?", [0, 1])
+    is_bounce = st.selectbox("A fait un rebond ?", [0, 1])
+    time_sinse_priorsession = st.slider("Temps depuis la session précédente (jours)", 0, 60, 5)
+    days_since_first_session = st.slider("Jours depuis la première session", 0, 365, 10)
+
+    submitted = st.form_submit_button("Prédire le désengagement")
+
+    if submitted:
+        input_data = pd.DataFrame([{
+            'num_pageviews': num_pageviews,
+            'num_comments': num_comments,
+            'num_prior_sessions': num_prior_sessions,
+            'is_repeat_visitor': is_repeat_visitor,
+            'has_username': has_username,
+            'is_bounce': is_bounce,
+            'days_since_prior_session': time_sinse_priorsession,
+            'days_since_first_session': days_since_first_session
+        }])
+
+        # Prédiction
+        prediction = predict_engagement(model, input_data)
+
+        if hasattr(prediction, "values"):  # S'il s'agit d'une série/array
+            prediction = prediction[0]
+
+        if prediction <= 25:  # seuil de désengagement
+            st.error("⚠️ L'utilisateur est à risque de désengagement.")
+        else:
+            st.success("✅ L'utilisateur semble engagé.")
