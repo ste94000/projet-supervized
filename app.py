@@ -84,7 +84,6 @@ if hasattr(model, "feature_importances_"):
         textinfo='label+percent',
         insidetextorientation='radial'
     )])
-    fig.update_layout(title="Distribution des 5 variables les plus importantes", showlegend=True)
     st.plotly_chart(fig, use_container_width=True)
 else:
     st.warning("Le modèle chargé ne permet pas d’afficher l’importance des variables.")
