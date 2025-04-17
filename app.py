@@ -153,9 +153,7 @@ with st.form("prediction_form"):
         if hasattr(prediction, "values"):
             prediction = prediction[0]
 
-        st.info(f"🔢 Score d'engagement prédit : **{round(prediction, 2)}**")
-
-        if prediction <= 25:
+        if prediction == 0:
             st.error("⚠️ L'utilisateur est à risque de désengagement.")
         else:
             st.success("✅ L'utilisateur semble engagé.")
