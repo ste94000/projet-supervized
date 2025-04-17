@@ -100,7 +100,7 @@ st.plotly_chart(fig, use_container_width=True)
 st.subheader("🔮 Prédiction de désengagement")
 
 with st.form("prediction_form"):
-    st.markdown("**Saisir les caractéristiques principales de l'utilisateur :**")
+    st.markdown("**Saisir les caractéristiques de l'utilisateur :**")
 
     num_pageviews = st.slider("Nombre de pages vues", 0, 100, 5)
     num_comments = st.slider("Nombre de commentaires", 0, 20, 0)
@@ -155,5 +155,7 @@ with st.form("prediction_form"):
 
         if prediction == 0:
             st.error("⚠️ L'utilisateur est à risque de désengagement.")
+        if is_repeat_visitor > 0.8 or num_pageviews > 10 or num_comments > 6 or is_bounce < 0.1:
+            st.success("✅ L'utilisateur semble engagé.")
         else:
             st.success("✅ L'utilisateur semble engagé.")
