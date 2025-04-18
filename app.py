@@ -193,22 +193,22 @@ with tab2:
 
         col1, col2 = st.columns(2)
         with col1:
-            st.markdown(f"**Langue :** {user.get('language', 'Non précisée')}")
-            st.markdown(f"**Appareil :** {user.get('os', 'Inconnu')}")
-            st.markdown(f"**Canal :** {user.get('medium', 'Non précisé')}")
-            st.markdown(f"**Temps depuis dernière session :** {int(user.get('days_since_prior_session', 0))} jours")
+            st.markdown(f"**Langue :** {user.get('language_x', 'Non précisée')}")
+            st.markdown(f"**Appareil :** {user.get('os_x', 'Inconnu')}")
+            st.markdown(f"**Canal :** {user.get('medium_x', 'Non précisé')}")
+            st.markdown(f"**Temps depuis dernière session :** {int(user.get('days_since_prior_session_x', 0))} jours")
         with col2:
-            st.markdown(f"**Pages vues :** {user['num_pageviews']:.1f}")
-            st.markdown(f"**Sessions :** {user['num_prior_sessions']:.1f}")
-            st.markdown(f"**Taux de rebond :** {user['is_bounce'] * 100:.1f} %")
+            st.markdown(f"**Pages vues :** {user['num_pageviews_x']:.1f}")
+            st.markdown(f"**Sessions :** {user['num_prior_sessions_x']:.1f}")
+            st.markdown(f"**Taux de rebond :** {user['is_bounce_x'] * 100:.1f} %")
 
         score = user["score_engagement_final"]
         niveau = "élevé" if score > 10 else "modéré" if score > 0 else "faible"
         st.markdown(f"### 📈 Score d'engagement : **{niveau}** ({round(score, 2)})")
 
         comportement = [
-            "🔁 Revient souvent" if user["is_repeat_visitor"] else "🚶 Visiteur occasionnel",
-            "💬 Commente fréquemment" if user["num_comments"] > 0 else "😶 Peu actif en commentaires"
+            "🔁 Revient souvent" if user["is_repeat_visitor_x"] else "🚶 Visiteur occasionnel",
+            "💬 Commente fréquemment" if user["num_comments_x"] > 0 else "😶 Peu actif en commentaires"
         ]
 
         recommandations = [
