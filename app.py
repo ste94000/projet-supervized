@@ -184,44 +184,61 @@ with tab2:
     selected_username = st.selectbox("Rechercher un nom d'utilisateur (si disponible)", sorted(usernames))
 
     # 📌 Filtrage sur l'utilisateur sélectionné
+    # Recherche de l'utilisateur dans le nouveau dataset (cluster_df)
     user_data = cluster_df[cluster_df["user_name"] == selected_username]
 
-    if not user_data.empty:
-        user = user_data.iloc[0]
+if not user_data.empty:
+    # 🔑 Récupération de l'ID utilisateur depuis le cluster_df
+    user_id = user_data["id_visitor"].values[0]
 
-        st.markdown(f"### 👤 Profil de **{user['user_name']}**")
+    # 📊 Récupération des infos KPI depuis le dataset principal (df_kpi)
+    user = df[df["id_visitor"] == user_id].iloc[0]
 
-        col1, col2 = st.columns(2)
-        with col1:
-            st.markdown(f"**Langue :** {user.get('language_x', 'Non précisée')}")
-            st.markdown(f"**Appareil :** {user.get('os_x', 'Inconnu')}")
-            st.markdown(f"**Canal :** {user.get('medium_x', 'Non précisé')}")
-            st.markdown(f"**Temps depuis dernière session :** {int(user.get('days_since_prior_session_x', 0))} jours")
-        with col2:
-            st.markdown(f"**Pages vues :** {user['num_pageviews_x']:.1f}")
-            st.markdown(f"**Sessions :** {user['num_prior_sessions_x']:.1f}")
-            st.markdown(f"**Taux de rebond :** {user['is_bounce_x'] * 100:.1f} %")
+    st.markdown(f"### 👤 Profil de **{selected_username}**")
 
-        score = user["score_engagement_final"]
-        niveau = "élevé" if score > 10 else "modéré" if score > 0 else "faible"
-        st.markdown(f"### 📈 Score d'engagement : **{niveau}** ({round(score, 2)})")
+    # 🔍 Détection dynamique des variables catégorielles
+    language_cols = [col for col in df.columns if col.startswith("language_")]
+    os_cols = [col for col in df.columns if col.startswith("os_")]
+    medium_cols = [col for col in df.columns if col.startswith("medium_")]
 
-        comportement = [
-            "🔁 Revient souvent" if user["is_repeat_visitor_x"] else "🚶 Visiteur occasionnel",
-            "💬 Commente fréquemment" if user["num_comments_x"] > 0 else "😶 Peu actif en commentaires"
-        ]
+    language_val = next((col.replace("language_", "") for col in language_cols if user.get(col, 0) == 1), "Non précisée")
+    os_val = next((col.replace("os_", "") for col in os_cols if user.get(col, 0) == 1), "Inconnu")
+    medium_val = next((col.replace("medium_", "") for col in medium_cols if user.get(col, 0) == 1), "Non précisé")
 
-        recommandations = [
-            "📚 Articles adaptés à ses intérêts",
-            "🤖 Suggestions IA ciblées",
-            "💌 Offres premium et newsletters"
-        ]
+    col1, col2 = st.columns(2)
+    with col1:
+        st.markdown(f"**Langue :** {language_val}")
+        st.markdown(f"**Appareil :** {os_val}")
+        st.markdown(f"**Canal :** {medium_val}")
+        st.markdown(f"**Temps depuis dernière session :** {int(user.get('days_since_prior_session', 0))} jours")
+        st.markdown(f"**Ancienneté :** {int(user.get('days_since_first_session', 0))} jours")
+    with col2:
+        st.markdown(f"**Pages vues :** {user['num_pageviews']:.1f}")
+        st.markdown(f"**Sessions :** {user['num_prior_sessions']:.1f}")
+        st.markdown(f"**Commentaires :** {int(user.get('num_comments', 0))}")
+        st.markdown(f"**Taux de rebond :** {user['is_bounce'] * 100:.1f} %")
 
-        st.markdown("### 🔍 Comportement :")
-        st.markdown(" - " + "\n - ".join(comportement))
+    score = user["score_engagement_final"]
+    niveau = "élevé" if score > 10 else "modéré" if score > 0 else "faible"
+    st.markdown(f"### 📈 Score d'engagement : **{niveau}** ({round(score, 2)})")
 
-        st.markdown("### 🧠 Recommandations :")
-        st.markdown(" - " + "\n - ".join(recommandations))
+    comportement = [
+        "🔁 Revient souvent" if user["is_repeat_visitor"] else "🚶 Visiteur occasionnel",
+        "💬 Commente fréquemment" if user["num_comments"] > 0 else "😶 Peu actif en commentaires",
+        "👤 A un compte" if user["has_username"] else "🙈 Utilisateur anonyme"
+    ]
 
-    else:
-        st.info("Aucun utilisateur trouvé avec ce nom dans ce cluster.")
+    recommandations = [
+        "📚 Articles adaptés à ses intérêts",
+        "🤖 Suggestions IA ciblées",
+        "💌 Offres premium et newsletters"
+    ]
+
+    st.markdown("### 🔍 Comportement :")
+    st.markdown(" - " + "\n - ".join(comportement))
+
+    st.markdown("### 🧠 Recommandations :")
+    st.markdown(" - " + "\n - ".join(recommandations))
+
+else:
+    st.info("Aucun utilisateur trouvé avec ce nom dans ce cluster.")
