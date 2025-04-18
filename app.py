@@ -161,38 +161,45 @@ with st.form("prediction_form"):
             st.success("✅ L'utilisateur semble engagé.")
 
 # Calcul des stats par cluster
-cluster_stats = df.groupby("cluster").agg({
+# Inverser le mapping pour cluster → label
+cluster_names = {v: k for k, v in cluster_labels.items()}
+
+# Ajout du nom du cluster
+df["cluster_name"] = df["cluster"].map(cluster_names)
+
+# Recalcul stats + tous les utilisateurs du cluster
+cluster_stats = df.groupby(["cluster", "cluster_name"]).agg({
     "num_pageviews": "mean",
     "num_prior_sessions": "mean",
     "is_bounce": "mean",
-    "id_visitor": lambda x: list(x.unique())[:5]
+    "id_visitor": lambda x: list(x.unique())  # Tous les utilisateurs !
 }).reset_index()
 
 cluster_stats.rename(columns={
     "num_pageviews": "avg_pageviews",
     "num_prior_sessions": "avg_sessions",
     "is_bounce": "bounce_rate",
-    "id_visitor": "top_users"
+    "id_visitor": "all_users"
 }, inplace=True)
 
-# Ajouter taille du cluster
 cluster_stats["size"] = df.groupby("cluster")["id_visitor"].nunique().values
 
+# 🧭 Affichage
 st.subheader("📦 Exploration des clusters utilisateurs")
 
 for _, row in cluster_stats.iterrows():
-    with st.expander(f"🔹 Cluster {row['cluster']} – {row['size']} utilisateurs"):
+    with st.expander(f"🔹 {row['cluster_name']} – {row['size']} utilisateurs"):
         col1, col2 = st.columns(2)
         with col1:
             st.metric("Pages vues moyennes", round(row["avg_pageviews"], 2))
             st.metric("Sessions moyennes", round(row["avg_sessions"], 2))
-            st.metric("Taux de rebond", f"{round(row['bounce_rate']*100, 1)} %")
+            st.metric("Taux de rebond", f"{round(row['bounce_rate'] * 100, 1)} %")
         with col2:
-            st.markdown("👤 **Utilisateurs typiques :**")
+            st.markdown("👥 **Utilisateurs du cluster :**")
             selected_user = st.selectbox(
-                f"Utilisateurs du cluster {row['cluster']}",
-                options=row["top_users"],
-                key=f"select_user_{row['cluster']}"
+                f"ID utilisateur – {row['cluster_name']}",
+                options=row["all_users"],
+                key=f"user_select_{row['cluster']}"
             )
 
             if selected_user:
@@ -204,7 +211,7 @@ for _, row in cluster_stats.iterrows():
                 st.markdown(f"**Temps depuis dernière session :** {int(user.get('days_since_prior_session', 0))} jours")
                 st.markdown(f"**Pages vues :** {user['num_pageviews']:.1f}")
                 st.markdown(f"**Sessions :** {user['num_prior_sessions']:.1f}")
-                st.markdown(f"**Taux de rebond :** {user['is_bounce']*100:.1f} %")
+                st.markdown(f"**Taux de rebond :** {user['is_bounce'] * 100:.1f} %")
 
                 score = user["score_engagement_final"]
                 niveau = "élevé" if score > 10 else "modéré" if score > 0 else "faible"
