@@ -29,146 +29,140 @@ if cluster_filter != "Tous":
 if level_filter != "Tous":
     filtered_df = filtered_df[filtered_df['engagement_level'] == level_filter]
 
-st.title("📊 Dashboard Engagement Utilisateurs")
-
-# KPI globaux du segment
-st.subheader("📌 KPIs")
-kpi1, kpi2, kpi3, kpi4 = st.columns(4)
-kpi1.metric("Utilisateurs", len(filtered_df))
-kpi2.metric("Score d'engagement moyen", round(filtered_df['score_engagement_final'].mean(), 2))
-kpi3.metric("Pages vues moyennes", round(filtered_df['num_pageviews'].mean(), 2))
-kpi4.metric("Sessions moyennes", round(filtered_df['num_prior_sessions'].mean(), 2))
-
-kpi5, kpi6, kpi7 = st.columns(3)
-kpi5.metric("Taux de rebond moyen", f"{round(filtered_df['is_bounce'].mean() * 100, 2)}%")
-kpi6.metric("Ancienneté moyenne (jours depuis 1ère session)", round(filtered_df['days_since_first_session'].mean(), 2))
-kpi7.metric("Délai moyen depuis dernière session (jours)", round(filtered_df['days_since_prior_session'].mean(), 2))
-
-# OS dominant
-os_cols = [col for col in df.columns if col.startswith("os_")]
-os_dominant = filtered_df[os_cols].mean().idxmax().replace("os_", "")
-country_cols = [col for col in df.columns if col.startswith("country_")]
-country_dominant = filtered_df[country_cols].mean().idxmax().replace("country_", "")
-
-st.info(f"🖥️ OS dominant : {os_dominant} | 🌍 Pays dominant : {country_dominant}")
-
-# Vue analytique
-st.subheader("📈 Vue analytique")
-plot_distributions(filtered_df)
-
-# Recommandations stratégiques
-st.subheader("🧠 Recommandations")
-col1, col2 = st.columns(2)
-with col1:
-    selected_cluster = st.selectbox("Cluster", list(cluster_labels.keys()), index=0)
-with col2:
-    selected_level = st.selectbox("Niveau d'engagement", level_labels, index=0)
-rec = get_recommendation(selected_cluster, selected_level)
-st.success(f"🎯 Recommandation : {rec}")
-
-# Importance des variables (Random Forest)
-st.subheader("📌 Top variables influençant le désengagement")
-
-weights = {
-    'mean_num_pageviews < 2': 0.25,
-    'num_comments == 0': 0.20,
-    'mean_num_prior_sessions <= 3': 0.15,
-    'is_repeat_visitor == 0': 0.05,
-    'no_username': 0.15,
-    'is_bounce': -0.10,  # impact négatif
-    'mean_time_sinse_priorsession': -0.05,
-    'days_since_first_session < 3': 0.05
-}
-
-# On prend les valeurs absolues pour représenter l'importance (peu importe le signe)
-importance_df = pd.DataFrame({
-    "Variable": list(weights.keys()),
-    "Importance": [abs(v) for v in weights.values()]
-}).sort_values(by="Importance", ascending=False)
-
-# Créer un faux camembert
-fig = go.Figure(data=[go.Pie(
-    labels=importance_df["Variable"],
-    values=importance_df["Importance"],
-    hole=0.4,
-    textinfo='label+percent',
-    textposition='outside'
-)])
-
-st.plotly_chart(fig, use_container_width=True)
-
-st.subheader("🔮 Prédiction de désengagement")
-
-with st.form("prediction_form"):
-    st.markdown("**Saisir les caractéristiques de l'utilisateur :**")
-
-    num_pageviews = st.slider("Nombre de pages vues", 0, 100, 5)
-    num_comments = st.slider("Nombre de commentaires", 0, 20, 0)
-    num_prior_sessions = st.slider("Nombre de sessions précédentes", 0, 50, 2)
-    is_repeat_visitor = st.slider("Visiteur récurrent ?", 0.0, 1.0, 0.5)
-    has_username = st.selectbox("A un nom d'utilisateur ?", [0, 1])
-    is_bounce = st.slider("Quel est son taux de rebond moyen ?", 0.0, 1.0, 0.5)
-    time_sinse_priorsession = st.slider("Temps depuis la session précédente (secondes)", 0, 300000)
-    days_since_first_session = st.slider("Jours depuis la première session", 0, 1000, 10)
-
-    submitted = st.form_submit_button("Prédire le désengagement")
-
-    if submitted:
-        # Variables que l'utilisateur a remplies
-        user_inputs = {
-            'num_pageviews': num_pageviews,
-            'num_comments': num_comments,
-            'num_prior_sessions': num_prior_sessions,
-            'is_repeat_visitor': is_repeat_visitor,
-            'has_username': has_username,
-            'is_bounce': is_bounce,
-            'days_since_prior_session': time_sinse_priorsession,
-            'days_since_first_session': days_since_first_session
-        }
-
-        # Créer un dictionnaire complet avec toutes les variables nécessaires au modèle
-        model_features = df.drop(columns=[
-            'score_engagement_final',
-            'score_engagement_intra_cluster',
-            'cluster_label',
-            'engagement_level',
-            'id_visitor',
-            "Unnamed: 0.2"
-        ]).columns
-
-        complete_input = {}
-        for col in model_features:
-            if col in user_inputs:
-                complete_input[col] = user_inputs[col]
-            else:
-                # Remplir avec la moyenne du dataset
-                complete_input[col] = df[col].mean()
-
-        # Construire le DataFrame d'entrée
-        input_data = pd.DataFrame([complete_input])
-
-        # Faire la prédiction
-        prediction = predict_engagement(model, input_data)
-
-        if hasattr(prediction, "values"):
-            prediction = prediction[0]
-
-        if is_repeat_visitor > 0.8 or num_pageviews > 10 or num_comments > 6 or is_bounce < 0.1:
-            st.success("✅ L'utilisateur semble engagé.")
-        elif prediction == 0:
-            st.error("⚠️ L'utilisateur est à risque de désengagement.")
-        else:
-            st.success("✅ L'utilisateur semble engagé.")
-
-# Ajout des onglets
 tab1, tab2 = st.tabs(["📊 Dashboard", "🔍 Exploration des clusters"])
 
-# Onglet Dashboard
 with tab1:
     st.title("📊 Dashboard Engagement Utilisateurs")
 
-    # KPIs, graphiques, recommandations, etc.
-    # ... tout ton code principal ici (les st.metric, filtres, modèle, prédiction...)
+
+    # KPI globaux du segment
+    st.subheader("📌 KPIs")
+    kpi1, kpi2, kpi3, kpi4 = st.columns(4)
+    kpi1.metric("Utilisateurs", len(filtered_df))
+    kpi2.metric("Score d'engagement moyen", round(filtered_df['score_engagement_final'].mean(), 2))
+    kpi3.metric("Pages vues moyennes", round(filtered_df['num_pageviews'].mean(), 2))
+    kpi4.metric("Sessions moyennes", round(filtered_df['num_prior_sessions'].mean(), 2))
+
+    kpi5, kpi6, kpi7 = st.columns(3)
+    kpi5.metric("Taux de rebond moyen", f"{round(filtered_df['is_bounce'].mean() * 100, 2)}%")
+    kpi6.metric("Ancienneté moyenne (jours depuis 1ère session)", round(filtered_df['days_since_first_session'].mean(), 2))
+    kpi7.metric("Délai moyen depuis dernière session (jours)", round(filtered_df['days_since_prior_session'].mean(), 2))
+
+    # OS dominant
+    os_cols = [col for col in df.columns if col.startswith("os_")]
+    os_dominant = filtered_df[os_cols].mean().idxmax().replace("os_", "")
+    country_cols = [col for col in df.columns if col.startswith("country_")]
+    country_dominant = filtered_df[country_cols].mean().idxmax().replace("country_", "")
+
+    st.info(f"🖥️ OS dominant : {os_dominant} | 🌍 Pays dominant : {country_dominant}")
+
+    # Vue analytique
+    st.subheader("📈 Vue analytique")
+    plot_distributions(filtered_df)
+
+    # Recommandations stratégiques
+    st.subheader("🧠 Recommandations")
+    col1, col2 = st.columns(2)
+    with col1:
+        selected_cluster = st.selectbox("Cluster", list(cluster_labels.keys()), index=0)
+    with col2:
+        selected_level = st.selectbox("Niveau d'engagement", level_labels, index=0)
+    rec = get_recommendation(selected_cluster, selected_level)
+    st.success(f"🎯 Recommandation : {rec}")
+
+    # Importance des variables (Random Forest)
+    st.subheader("📌 Top variables influençant le désengagement")
+
+    weights = {
+        'mean_num_pageviews < 2': 0.25,
+        'num_comments == 0': 0.20,
+        'mean_num_prior_sessions <= 3': 0.15,
+        'is_repeat_visitor == 0': 0.05,
+        'no_username': 0.15,
+        'is_bounce': -0.10,  # impact négatif
+        'mean_time_sinse_priorsession': -0.05,
+        'days_since_first_session < 3': 0.05
+    }
+
+    # On prend les valeurs absolues pour représenter l'importance (peu importe le signe)
+    importance_df = pd.DataFrame({
+        "Variable": list(weights.keys()),
+        "Importance": [abs(v) for v in weights.values()]
+    }).sort_values(by="Importance", ascending=False)
+
+    # Créer un faux camembert
+    fig = go.Figure(data=[go.Pie(
+        labels=importance_df["Variable"],
+        values=importance_df["Importance"],
+        hole=0.4,
+        textinfo='label+percent',
+        textposition='outside'
+    )])
+
+    st.plotly_chart(fig, use_container_width=True)
+
+    st.subheader("🔮 Prédiction de désengagement")
+
+    with st.form("prediction_form"):
+        st.markdown("**Saisir les caractéristiques de l'utilisateur :**")
+
+        num_pageviews = st.slider("Nombre de pages vues", 0, 100, 5)
+        num_comments = st.slider("Nombre de commentaires", 0, 20, 0)
+        num_prior_sessions = st.slider("Nombre de sessions précédentes", 0, 50, 2)
+        is_repeat_visitor = st.slider("Visiteur récurrent ?", 0.0, 1.0, 0.5)
+        has_username = st.selectbox("A un nom d'utilisateur ?", [0, 1])
+        is_bounce = st.slider("Quel est son taux de rebond moyen ?", 0.0, 1.0, 0.5)
+        time_sinse_priorsession = st.slider("Temps depuis la session précédente (secondes)", 0, 300000)
+        days_since_first_session = st.slider("Jours depuis la première session", 0, 1000, 10)
+
+        submitted = st.form_submit_button("Prédire le désengagement")
+
+        if submitted:
+            # Variables que l'utilisateur a remplies
+            user_inputs = {
+                'num_pageviews': num_pageviews,
+                'num_comments': num_comments,
+                'num_prior_sessions': num_prior_sessions,
+                'is_repeat_visitor': is_repeat_visitor,
+                'has_username': has_username,
+                'is_bounce': is_bounce,
+                'days_since_prior_session': time_sinse_priorsession,
+                'days_since_first_session': days_since_first_session
+            }
+
+            # Créer un dictionnaire complet avec toutes les variables nécessaires au modèle
+            model_features = df.drop(columns=[
+                'score_engagement_final',
+                'score_engagement_intra_cluster',
+                'cluster_label',
+                'engagement_level',
+                'id_visitor',
+                "Unnamed: 0.2"
+            ]).columns
+
+            complete_input = {}
+            for col in model_features:
+                if col in user_inputs:
+                    complete_input[col] = user_inputs[col]
+                else:
+                    # Remplir avec la moyenne du dataset
+                    complete_input[col] = df[col].mean()
+
+            # Construire le DataFrame d'entrée
+            input_data = pd.DataFrame([complete_input])
+
+            # Faire la prédiction
+            prediction = predict_engagement(model, input_data)
+
+            if hasattr(prediction, "values"):
+                prediction = prediction[0]
+
+            if is_repeat_visitor > 0.8 or num_pageviews > 10 or num_comments > 6 or is_bounce < 0.1:
+                st.success("✅ L'utilisateur semble engagé.")
+            elif prediction == 0:
+                st.error("⚠️ L'utilisateur est à risque de désengagement.")
+            else:
+                st.success("✅ L'utilisateur semble engagé.")
 
 # Onglet Exploration des clusters
 with tab2:
