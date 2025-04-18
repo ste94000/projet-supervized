@@ -159,3 +159,70 @@ with st.form("prediction_form"):
             st.error("⚠️ L'utilisateur est à risque de désengagement.")
         else:
             st.success("✅ L'utilisateur semble engagé.")
+
+# Calcul des stats par cluster
+cluster_stats = df.groupby("cluster").agg({
+    "num_pageviews": "mean",
+    "num_prior_sessions": "mean",
+    "is_bounce": "mean",
+    "id_visitor": lambda x: list(x.unique())[:5]
+}).reset_index()
+
+cluster_stats.rename(columns={
+    "num_pageviews": "avg_pageviews",
+    "num_prior_sessions": "avg_sessions",
+    "is_bounce": "bounce_rate",
+    "id_visitor": "top_users"
+}, inplace=True)
+
+# Ajouter taille du cluster
+cluster_stats["size"] = df.groupby("cluster")["id_visitor"].nunique().values
+
+st.subheader("📦 Exploration des clusters utilisateurs")
+
+for _, row in cluster_stats.iterrows():
+    with st.expander(f"🔹 Cluster {row['cluster']} – {row['size']} utilisateurs"):
+        col1, col2 = st.columns(2)
+        with col1:
+            st.metric("Pages vues moyennes", round(row["avg_pageviews"], 2))
+            st.metric("Sessions moyennes", round(row["avg_sessions"], 2))
+            st.metric("Taux de rebond", f"{round(row['bounce_rate']*100, 1)} %")
+        with col2:
+            st.markdown("👤 **Utilisateurs typiques :**")
+            selected_user = st.selectbox(
+                f"Utilisateurs du cluster {row['cluster']}",
+                options=row["top_users"],
+                key=f"select_user_{row['cluster']}"
+            )
+
+            if selected_user:
+                user = df[df["id_visitor"] == selected_user].iloc[0]
+                st.markdown(f"**Nom :** {user.get('user_name', 'Inconnu·e')}")
+                st.markdown(f"**Langue :** {user.get('language', 'Non précisée')}")
+                st.markdown(f"**Appareil :** {user.get('os', 'Inconnu')}")
+                st.markdown(f"**Canal :** {user.get('medium', 'Non précisé')}")
+                st.markdown(f"**Temps depuis dernière session :** {int(user.get('days_since_prior_session', 0))} jours")
+                st.markdown(f"**Pages vues :** {user['num_pageviews']:.1f}")
+                st.markdown(f"**Sessions :** {user['num_prior_sessions']:.1f}")
+                st.markdown(f"**Taux de rebond :** {user['is_bounce']*100:.1f} %")
+
+                score = user["score_engagement_final"]
+                niveau = "élevé" if score > 10 else "modéré" if score > 0 else "faible"
+                st.markdown(f"### 📈 Score d'engagement : **{niveau}**")
+
+                comportement = [
+                    "🔁 Revient souvent" if user["is_repeat_visitor"] else "🚶 Visiteur occasionnel",
+                    "💬 Commente fréquemment" if user["num_comments"] > 0 else "😶 Peu actif en commentaires"
+                ]
+
+                recommandations = [
+                    "📚 Articles adaptés à ses intérêts",
+                    "🤖 Suggestions IA ciblées",
+                    "💌 Offres premium et newsletters"
+                ]
+
+                st.markdown("### 🔍 Comportement :")
+                st.markdown(" - " + "\n - ".join(comportement))
+
+                st.markdown("### 🧠 Recommandations :")
+                st.markdown(" - " + "\n - ".join(recommandations))
